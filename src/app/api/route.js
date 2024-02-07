@@ -25,8 +25,8 @@ export default async function handler(req, res) {
 
     // Upload the file to GitHub repository
     const githubToken = process.env.GITHUB_TOKEN;
-    const owner = process.env.GITHUB_USERNAME;
-    const repo = process.env.REPO_NAME;
+    const owner = 'sopdrive';
+    const repo = 'images';
     const filePath = `images/${file.name}`;
     const url = `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}`;
     const base64Data = Buffer.from(await readFileAsync(tempPath)).toString('base64');

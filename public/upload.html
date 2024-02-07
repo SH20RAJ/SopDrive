@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Image</title>
+</head>
+<body>
+    <input type="file" id="fileInput">
+    <button id="uploadButton">Upload Image</button>
+    <div id="result"></div>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const uploadButton = document.getElementById('uploadButton');
+        const resultDiv = document.getElementById('result');
+
+        uploadButton.addEventListener('click', async () => {
+            const file = fileInput.files[0];
+            if (!file) {
+                return alert('Please select a file');
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch('/api/uploadImage', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                resultDiv.innerHTML = `<a href="${data.url}" target="_blank">View Uploaded Image</a>`;
+            } catch (error) {
+                console.error('Error uploading image:', error);
+                resultDiv.textContent = 'Error uploading image';
+            }
+        });
+    </script>
+</body>
+</html>
