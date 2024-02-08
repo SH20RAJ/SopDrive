@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload Large File to GitHub Releases</title>
+</head>
+<body>
+  <h1>Upload Large File to GitHub Releases</h1>
+  <input type="file" id="fileInput">
+  <button onclick="uploadFile()">Upload</button>
+  <div id="progress"></div>
+
+  <script>
+    async function fetchReleaseId() {
+      const token = 'ghp_k732zLzN-DXoABjLvo3422J-5hk7Mo7i2OTN9a';
+      const owner = 'sopdrive'; // Replace 'yourusername' with your GitHub username
+      const repo = 'images'; // Replace 'yourrepository' with your repository name
+
+      try {
+        const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/releases`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `token ${token}`,
+            'Accept': 'application/vnd.github.v3+json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch releases');
+        }
+
+        const data = await response.json();
+
+        // Assuming the first release is the one you want to use
+        const releaseId = data[0].id;
+        return releaseId;
+      } catch (error) {
+        console.error('Error fetching releases:', error);
+        return null;
+      }
+    }
+
+    async function uploadFile() {
+      const releaseId = await fetchReleaseId();
+
+      if (!releaseId) {
+        alert('Failed to fetch release ID');
+        return;
+      }
+
+      const fileInput = document.getElementById('fileInput');
+      const file = fileInput.files[0];
+      
+      if (!file) {
+        alert('Please select a file');
+        return;
+      }
+
+      const token = 'ghp_k732zLzN-DXoABjLvo342-2J5hk7Mo7i2OTN9a';
+      const owner = 'sopdrive'; // Replace 'yourusername' with your GitHub username
+      const repo = 'images'; // Replace 'yourrepository' with your repository name
+
+      const url = `https://uploads.github.com/repos/${owner}/${repo}/releases/${releaseId}/assets?name=${file.name}`;
+      
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', url);
+      xhr.setRequestHeader('Authorization', `token ${token}`);
+
+      xhr.upload.addEventListener('progress', function(event) {
+        const progress = Math.round((event.loaded / event.total) * 100);
+        document.getElementById('progress').innerText = `Progress: ${progress}%`;
+      });
+
+      xhr.onload = function() {
+        if (xhr.status === 201) {
+          alert('File uploaded successfully!');
+        } else {
+          alert('Failed to upload file');
+        }
+      };
+
+      xhr.onerror = function() {
+        alert('An error occurred while uploading the file');
+      };
+
+      xhr.send(formData);
+    }
+  </script>
+</body>
+</html>
